@@ -1,6 +1,5 @@
 import Dig from '../components/Dig.jsx';
-import { DigInput } from '../components/DigInput.jsx';
-import { MakeDig } from '../components/MakeDig.jsx';
+import Menu from '../components/DigFormWrapper.jsx';
 import { digs } from './sample-digs.js';
 
 function Home() {
@@ -14,8 +13,7 @@ function Home() {
             {digs.map((dig) => (
                 <Dig key={dig.digId} data={dig} />
             ))}
-            <DigInput />
-            <MakeDig />
+            <Menu />
         </div>
     );
 }
