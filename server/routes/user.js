@@ -1,52 +1,57 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
+const bcrypt = require("bcrypt");
 module.exports = router;
+JWT = require("jsonwebtoken");
 
-// ユーザーの取得
-router.get('/:username', (req, res) => {
-    const username = req.params.username;
-    pool.query("select * from users where username = $1", [username], (err, result) => {
+// JWTトークンでユーザー名を取得
+router.get('/', (req, res) => {
+    const token = req.headers['authorization'];
+    if (!token) {
+        return res.status(401).json({ message: "トークンがありません" });
+    }
+    const decoded = JWT.verify(token, process.env.JWT_SECRET);
+    pool.query("select * from users where username = $1", [decoded.username], (err, result) => {
         if (err) {
             console.log(err);
+            res.status(500).json({ message: "ユーザーの取得に失敗しました" });
         } else {
-            // display_nameを返す
-            console.log(result.rows[0].display_name);
-            res.send(result.rows[0].display_name);
+            res.status(201).json(result.rows[0].username);
         }
     });
 });
 
 // ユーザーの登録
 router.post('/', async (req, res) => {
-    const { username, password, email, displayName } = req.body;
-    // ユーザー名とパスワードが入力されているかチェック
-    if (!username || !password) {
-        return res.status(401).send("ユーザー名とパスワードを入力してください");
-    }
+    const { username, password, email } = req.body;
     // ユーザー名が既に登録されていないかチェック
     const checkUsername = await pool.query("select * from users where username = $1", [username]);
     if (checkUsername.rows.length > 0) {
-        return res.status(401).send("既に登録されているユーザー名です");
+        return res.status(401).json({ message: "ユーザー名が既に登録されています" });
     }
-    // オプションで登録するカラムを指定
-    const columns = [];
-    const values = [];
-    if (email) {
-        columns.push("email");
-        values.push(email);
+    //メールアドレスが既に登録されていないかチェック
+    const checkEmail = await pool.query("select * from users where email = $1", [email]);
+    if (checkEmail.rows.length > 0) {
+        return res.status(402).json({ message: "メールアドレスが既に登録されています" });
     }
-    if (displayName) {
-        columns.push("display_name");
-        values.push(displayName);
-    }
-    // ユーザーを登録
-    pool.query("insert into users (username, password, " + columns.join(", ") + ") values ($1, $2, " + values.map((value, index) => "$" + (index + 3)).join(", ") + ")", [username, password, ...values], (err, result) => {
+    // パスワードをハッシュ化
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    pool.query("insert into users (username, email, hashed_password) values ($1, $2, $3)", [username, email, hashedPassword], (err, result) => {
         if (err) {
             console.log(err);
+            const response = {
+                message: "ユーザーの登録に失敗しました"
+            }
+            res.status(500).json(response);
         } else {
             console.log(username + "を登録しました")
-            res.send(username + "を登録しました");
+            // 登録が成功したらsuccessを返す
+            const response = {
+                status: "success",
+            }
+            res.status(201).json(response);
         }
     });
 });
@@ -54,20 +59,18 @@ router.post('/', async (req, res) => {
 
 // ユーザーの更新
 router.put('/', async (req, res) => {
-    let { username, password, email, displayName, newUsername, newPassword } = req.body;
-    //更新するユーザーとパスワードが適正かチェック
-    const checkPassword = await pool.query("select * from users where username = $1 and password = $2", [username, password]);
-    //適正でない場合はエラーを返す
-    if (checkPassword.rows.length === 0) {
-        return res.status(401).send("ユーザーネームとパスワードが一致しません");
+    let { username, password, email, newUsername, newPassword } = req.body;
+    //hashed_passwordを取得
+    const hashedPassword = await pool.query("select hashed_password from users where username = $1", [username]);
+    //パスワードが一致するかチェック
+    const checkPassword = await bcrypt.compare(password, hashedPassword.rows[0].hashed_password);
+    if (!checkPassword) {
+        return res.status(401).send("パスワードが一致しません");
     }
     //更新するカラムを指定
     const updateColumns = [];
     if (email) {
         updateColumns.push("email = " + "'" + email + "'");
-    }
-    if (displayName) {
-        updateColumns.push("display_name = " + "'" + displayName + "'");
     }
     if (newUsername) {
         //新しいユーザー名が既に使われていないかチェック
@@ -78,7 +81,9 @@ router.put('/', async (req, res) => {
         updateColumns.push("username = " + "'" + newUsername + "'");
     }
     if (newPassword) {
-        updateColumns.push("password = " + "'" + newPassword + "'");
+        //新しいパスワードをハッシュ化
+        newPassword = await bcrypt.hash(newPassword, 10);
+        updateColumns.push("hashed_password = " + "'" + newPassword + "'");
     }
     //更新するカラムがない場合はエラー
     if (updateColumns.length === 0) {
@@ -100,7 +105,20 @@ router.put('/', async (req, res) => {
 // ユーザーの削除
 router.delete('/', (req, res) => {
     const { username, password } = req.body;
-    pool.query("delete from users where username = $1 and password = $2", [username, password], (err, result) => {
+    //DBからハッシュ化されたパスワードを取得
+    pool.query("select hashed_password from users where username = $1", [username], async (err, result) => {
+        if (err) {
+            console.log(err);
+        } else {
+            //パスワードが一致するかチェック
+            const hashedPassword = result.rows[0].hashed_password;
+            const checkPassword = await bcrypt.compare(password, hashedPassword);
+            if (!checkPassword) {
+                return res.status(401).send("パスワードが一致しません");
+            }
+        }
+    });
+    pool.query("delete from users where username = $1", [username], (err, result) => {
         if (err) {
             console.log(err);
         } else {

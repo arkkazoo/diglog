@@ -3,18 +3,6 @@ const router = express.Router();
 const pool = require("../db");
 module.exports = router;
 
-// 入力をdisplay_nameに含むuserを取得
-router.get('/user', (req, res) => {
-    const { input } = req.query;
-    pool.query("select * from users where display_name like $1", ['%' + input + '%'], (err, result) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.send(result.rows);
-        }
-    });
-});
-
 // 入力条件に適したdigを取得
 router.get('/dig', (req, res) => {
     const { userId = null, artist = null, title = null, domain = null } = req.query;

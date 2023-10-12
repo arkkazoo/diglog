@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");
 const identifyDomain = require("../src/util");
+const JWT = require("jsonwebtoken");
 module.exports = router;
 
 // digの取得
@@ -28,7 +29,13 @@ router.get('/', (req, res) => {
 
 // digの投稿
 router.post('/', (req, res) => {
-    const { user_id, url, artist, title, comment } = req.body;
+    const { url, artist, title, comment } = req.body;
+    const jwtToken = req.headers.authorization;
+    const decoded = JWT.verify(jwtToken, process.env.JWT_SECRET);
+    if (!decoded) {
+        return res.send("invalid token");
+    }
+    user_id = decoded.user_id;
     // URLからドメインを判定
     const domain = identifyDomain(url);
     if (!domain) {

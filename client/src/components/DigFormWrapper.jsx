@@ -9,7 +9,6 @@ const Menu = () => {
 
     useEffect(() => {
         const childHeight = childRef.current.offsetHeight;
-        console.log(isMenuOpen);
         {
             isMenuOpen
                 ? parentRef.current.style.transform = `translateY(0px)`

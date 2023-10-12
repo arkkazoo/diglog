@@ -1,9 +1,9 @@
 client/node_modules
-client/.eslintrc.cjs
-
 db
 
 server/node_modules
 server/db.js
 server/postman.js
 server/sample-data.js
+
+server/.env
