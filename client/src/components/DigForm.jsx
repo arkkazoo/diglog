@@ -37,10 +37,11 @@ const DigForm = () => {
             setFormData({
                 url: '',
                 artist: '',
-                song: '',
+                title: '',
                 comment: '',
             });
         } else {
+            console.log(response);
             alert('投稿に失敗しました');
         }
     };

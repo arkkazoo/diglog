@@ -13,13 +13,13 @@ const DomainIcon =  (props) => {
 
     const Color = (domain) => {
         if (domain === "youtube") {
-            return "bg-red-500"
+            return "bg-red-400"
         }
         if (domain === "soundcloud") {
-            return "bg-orange-500"
+            return "bg-orange-400"
         }
         if (domain === "spotify") {
-            return "bg-green-500"
+            return "bg-green-400"
         }
     }
 

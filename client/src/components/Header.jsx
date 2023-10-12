@@ -3,6 +3,7 @@ import { useCookies } from 'react-cookie';
 
 // ログイン状態を管理するために、useStateをインポート
 import { useState, useEffect } from 'react';
+import DigFormWrapper from './DigFormWrapper';
 
 function Header() {
     // ログイン状態を管理するための変数を定義
@@ -13,13 +14,17 @@ function Header() {
     // Cookieにユーザー情報が保存されているかどうかを確認
     useEffect(() => {
         if (cookies.jwtToken) {
-            // ユーザー情報が保存されている場合は、ログイン状態をtrueにする
-            setIsLogin(true);
+            // ユーザー情報が保存されている場合は、ログインできるかどうかを確認するためのAPIを叩く
             // ユーザー名を取得するためのAPIを叩く
-            getUserName().then((data) => {
-                setUserName(data);
-            }
-            );
+            let data = getUserName();
+            data.then((result) => {
+                if (result) {
+                    setIsLogin(true);
+                    setUserName(result);
+                } else {
+                    setIsLogin(false);
+                }
+            });
         }
     }, []);
 
@@ -42,6 +47,12 @@ function Header() {
     }
 
     return (
+        <>
+        {isLogin ? (
+            <DigFormWrapper />
+        ) : (
+            <></>
+        )}
         <header className='border-b'>
             <div className='container flex mx-auto p-5 flex-row items-center'>
                 <a href='/' className='font-medium mb-0'>
@@ -66,6 +77,8 @@ function Header() {
                 }
             </div>
         </header>
+        </>
+
     )
 }
 

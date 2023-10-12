@@ -7,6 +7,7 @@ module.exports = router;
 
 // digの取得
 router.get('/', (req, res) => {
+    const limit = req.query.limit;
     const user_id = req.query.user_id;
     if (user_id) {
         pool.query("select * from digs where user_id = $1", [user_id], (err, result) => {
@@ -17,7 +18,8 @@ router.get('/', (req, res) => {
             }
         });
     } else {
-        pool.query("select * from digs", (err, result) => {
+        // 最新の投稿を新しい順に取得
+        pool.query("select * from digs order by created_at desc limit $1", [limit], (err, result) => {
             if (err) {
                 console.log(err);
             } else {
@@ -38,8 +40,9 @@ router.post('/', (req, res) => {
     user_id = decoded.user_id;
     // URLからドメインを判定
     const domain = identifyDomain(url);
-    if (!domain) {
-        return res.send("invalid domain. url:" + url);
+    // ドメインが取得できない場合
+    if (domain === null) {
+        return res.status(400).json({ message: "invalid domain. url:" + url })
     }
     pool.query("insert into digs (user_id, url, domain, artist, title, comment) values ($1, $2, $3, $4, $5, $6)", [user_id, url, domain, artist, title, comment], (err, result) => {
         if (err) {
