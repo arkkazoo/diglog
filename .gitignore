@@ -2,7 +2,6 @@ client/node_modules
 db
 
 server/node_modules
-server/db.js
 server/postman.js
 server/sample-data.js
 
