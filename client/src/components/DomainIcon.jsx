@@ -13,18 +13,18 @@ const DomainIcon =  (props) => {
 
     const Color = (domain) => {
         if (domain === "youtube") {
-            return "bg-red-400"
+            return "border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
         }
         if (domain === "soundcloud") {
-            return "bg-orange-400"
+            return "border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-white"
         }
         if (domain === "spotify") {
-            return "bg-green-400"
+            return "border-green-400 text-green-400 hover:bg-green-400 hover:text-white"
         }
     }
 
     return (
-        <div className={`rounded-md ${Color(props.domain)} text-white p-1`}>
+        <div className={`rounded-md font-bold border-2 transition duration-150 hover:ease-in-out ${Color(props.domain)} p-1`}>
             {Acronym(props.domain)}
         </div>
     );

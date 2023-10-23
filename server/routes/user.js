@@ -24,21 +24,16 @@ router.get('/', (req, res) => {
 
 // ユーザーの登録
 router.post('/', async (req, res) => {
-    const { username, password, email } = req.body;
+    const { username, password } = req.body;
     // ユーザー名が既に登録されていないかチェック
     const checkUsername = await pool.query("select * from users where username = $1", [username]);
     if (checkUsername.rows.length > 0) {
         return res.status(401).json({ message: "ユーザー名が既に登録されています" });
     }
-    //メールアドレスが既に登録されていないかチェック
-    const checkEmail = await pool.query("select * from users where email = $1", [email]);
-    if (checkEmail.rows.length > 0) {
-        return res.status(402).json({ message: "メールアドレスが既に登録されています" });
-    }
     // パスワードをハッシュ化
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    pool.query("insert into users (username, email, hashed_password) values ($1, $2, $3)", [username, email, hashedPassword], (err, result) => {
+    pool.query("insert into users (username, hashed_password) values ($1, $2)", [username, hashedPassword], (err, result) => {
         if (err) {
             console.log(err);
             const response = {
@@ -59,7 +54,7 @@ router.post('/', async (req, res) => {
 
 // ユーザーの更新
 router.put('/', async (req, res) => {
-    let { username, password, email, newUsername, newPassword } = req.body;
+    let { username, password, newUsername, newPassword } = req.body;
     //hashed_passwordを取得
     const hashedPassword = await pool.query("select hashed_password from users where username = $1", [username]);
     //パスワードが一致するかチェック
@@ -69,9 +64,6 @@ router.put('/', async (req, res) => {
     }
     //更新するカラムを指定
     const updateColumns = [];
-    if (email) {
-        updateColumns.push("email = " + "'" + email + "'");
-    }
     if (newUsername) {
         //新しいユーザー名が既に使われていないかチェック
         const checkUsername = await pool.query("select * from users where username = $1", [newUsername]);

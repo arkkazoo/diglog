@@ -1,21 +1,20 @@
-// Cookieに保存されているユーザー情報を取得するために、useCookiesをインポート
 import { useCookies } from 'react-cookie';
+import { Link } from 'react-router-dom';
+import MyContext from '../MyContext';
 
-// ログイン状態を管理するために、useStateをインポート
-import { useState, useEffect } from 'react';
-import DigFormWrapper from './DigFormWrapper';
+import { useState, useEffect, useContext } from 'react';
+import DigModal from './DigModal';
 
 function Header() {
-    // ログイン状態を管理するための変数を定義
-    const [isLogin, setIsLogin] = useState(false);
+    const APIOrigin = import.meta.env.VITE_API_ORIGIN;
+    const { isLogin, setIsLogin } = useContext(MyContext);
     const [userName, setUserName] = useState('');
-    // Cookieに保存されているユーザー情報を取得するために、useCookiesをインポート
-    const [cookies, setCookie, removeCookie] = useCookies(['jwtToken']);
-    // Cookieにユーザー情報が保存されているかどうかを確認
+    const [cookies, setCookie, removeCookie] = useCookies();
+    const [isDigModalOpen, setIsDigModalOpen] = useState(false);
+    const {trackData, setTrackData} = useContext(MyContext);
+
     useEffect(() => {
         if (cookies.jwtToken) {
-            // ユーザー情報が保存されている場合は、ログインできるかどうかを確認するためのAPIを叩く
-            // ユーザー名を取得するためのAPIを叩く
             let data = getUserName();
             data.then((result) => {
                 if (result) {
@@ -26,12 +25,11 @@ function Header() {
                 }
             });
         }
-    }, []);
+    }, [isLogin]);
 
-    // ユーザー名を取得するためのAPIを定義
-    const url = import.meta.env.VITE_API_ORIGIN;
+    // ユーザー名を取得するためのAPI
     const getUserName = async () => {
-        const response = await fetch(`${url}/api/user`, {
+        const response = await fetch(`${APIOrigin}/api/user`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -46,37 +44,73 @@ function Header() {
         }
     }
 
+    const handleClickMakeDig = () => {
+        setIsDigModalOpen(true);
+    }
+
+    const CloseDigModal = () => {
+        setIsDigModalOpen(false);
+    }
+
+    const handlePlayRandom = async () => {
+        const data = await fetch(`${APIOrigin}/api/dig/random`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${cookies.jwtToken}`,
+            },
+        });
+        const response = await data.json();
+        if (data.ok) {
+            setTrackData(response);
+        } else {
+            alert(response.message);
+        }
+    }
+
+
     return (
         <>
-        {isLogin ? (
-            <DigFormWrapper />
-        ) : (
-            <></>
-        )}
-        <header className='border-b'>
-            <div className='container flex mx-auto p-5 flex-row items-center'>
-                <a href='/' className='font-medium mb-0'>
-                    <span className='text-xl font-black ml-3'>diglog</span>
-                </a>
-                {isLogin ? (
-                    <nav className='ml-auto text-base'>
-                        <a href='/search' className='mr-5 hover:text-red-500 duration-150'>search</a>
-                        {userName ? (
-                            <a href='/user' className='hover:text-red-500 duration-150'>{userName}</a>
-                        ) : (
-                            <a href='/user' className='hover:text-red-500 duration-150'>user</a>
-                        )}
-                    </nav>
-                ) : (
-                    <nav className='ml-auto text-base'>
-                        <a href='/search' className='mr-5 hover:text-red-500 duration-150'>search</a>
-                        <a href='/register' className='mr-5 hover:text-red-500 duration-150'>register</a>
-                        <a href='/login' className='hover:text-red-500 duration-150'>login</a>
-                    </nav>
-                )
-                }
-            </div>
-        </header>
+            <header className='border-b sticky top-0 w-full bg-white'>
+                <div className='container flex mx-auto p-2 flex-row items-center'>
+                    <Link to='/' className='font-medium mb-0'>
+                        <span className='text-xl font-black ml-3'>diglog</span>
+                    </Link>
+                    {isLogin ? (
+                        <nav className='mx-auto text-base'>
+                            <Link to='/mydigs' className='font-bold px-4 py-2 hover:text-red-500 duration-150 border-r'>dig</Link>
+                            <Link to='/myplaylists' className='font-bold px-4 py-2 hover:text-red-500 duration-150 border-r'>playlist</Link>
+                            <Link to='/search' className='font-bold px-4 py-2 hover:text-red-500 duration-150 border-r'>search</Link>
+                            <Link to='/mypage' className='font-bold mr-5 pl-4 py-2 hover:text-red-500 duration-150'>mypage</Link>
+                            <button
+                                onClick={handlePlayRandom}
+                                className='font-bold mr-5 px-4 py-2 rounded-lg hover:text-red-500 duration-150 border-2'>
+                                random
+                            </button>
+                            <button
+                                onClick={handleClickMakeDig}
+                                className='font-bold mr-5 px-4 py-2 bg-gray-700 rounded-lg hover:text-red-500 duration-150 text-white'>
+                                new dig
+                            </button>
+                        </nav>
+                    ) : (
+                        <nav className='mx-auto text-base'>
+                            <button
+                                onClick={handlePlayRandom}
+                                className='mr-5 px-4 py-2 rounded-lg hover:text-red-500 duration-150 border-2'>
+                                random
+                            </button>
+                            <Link to='/search' className='font-bold mr-5 hover:text-red-500 duration-150'>search</Link>
+                            <Link to='/register' className='font-bold mr-5 hover:text-red-500 duration-150'>register</Link>
+                            <Link to='/login' className='font-bold hover:text-red-500 duration-150'>login</Link>
+                        </nav>
+                    )
+                    }
+                </div>
+            </header>
+            {isDigModalOpen && (
+                <DigModal onClose={CloseDigModal} />
+            )}
         </>
 
     )

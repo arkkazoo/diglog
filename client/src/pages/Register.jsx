@@ -1,11 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const validateEmail = (email) => {
-    const re = /\S+@\S+\.\S+/;
-    return re.test(email);
-};
-
 const validatePassword = (password) => {
     if (password.length < 8) {
         return "パスワードは8文字以上で入力してください";
@@ -26,10 +21,10 @@ const validatePassword = (password) => {
 };
 
 export function Register() {
+    const APIOrigin = import.meta.env.VITE_API_ORIGIN;
     const navigateTo = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
-        email: '',
         password: '',
         passwordConfirmation: '',
     });
@@ -47,10 +42,6 @@ export function Register() {
             alert('ユーザーIDを入力してください');
             return;
         }
-        if (validateEmail(formData.email) === false) {
-            alert('メールアドレスを正しく入力してください');
-            return;
-        }
         if (validatePassword(formData.password) !== true) {
             alert(`${validatePassword(formData.password)}`);
             return;
@@ -59,9 +50,8 @@ export function Register() {
             alert('パスワードが一致しません');
             return;
         }
-        //APIにPOSTリクエストを送る
-        const url = import.meta.env.VITE_API_ORIGIN;
-        const res = await fetch(url + "/api/user", {
+        
+        const res = await fetch(APIOrigin + "/api/user", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -70,12 +60,9 @@ export function Register() {
         });
         const data = await res.json();
         if (data.status === 'success') {
-            navigateTo('/');
-            alert('登録が完了しました');
-            //　ホームページに遷移する
+            navigateTo('/login');
         } else {
             alert(data.message);
-            // パスワードを初期化する
             setFormData({
                 ...formData,
                 password: '',
@@ -104,20 +91,6 @@ export function Register() {
                                 onChange={handleChange}
                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                 placeholder="ユーザーIDを入力してください"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                                メールアドレス
-                            </label>
-                            <input
-                                type="text"
-                                id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                placeholder="メールアドレスを入力してください"
                             />
                         </div>
                         <div className="mb-4">

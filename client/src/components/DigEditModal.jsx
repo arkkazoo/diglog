@@ -1,0 +1,150 @@
+import React, { useState } from 'react';
+import { useCookies } from 'react-cookie';
+import validateTags from '../util';
+
+const DigEditModal = (props) => {
+    let { dig_id, artist, title, url, tags } = props.data;
+    if (tags === null) {
+        tags = [];
+    }
+    const [cookies, setCookie, removeCookie] = useCookies(['jwtToken']);
+    const [formData, setFormData] = useState({
+        url: url,
+        artist: artist,
+        title: title,
+        tags: tags,
+        dig_id: dig_id,
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
+    };
+
+    const handleChangeTags = (e) => {
+        const { name, value } = e.target;
+        const tags = value.split(' ');
+        setFormData({
+            ...formData,
+            [name]: tags,
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        console.log(formData)
+        if (!validateTags(formData.tags)) {
+            alert('タグは英数字とアンダーバーのみ使用できます');
+            return;
+        }
+
+        const url = import.meta.env.VITE_API_ORIGIN;
+        // CookieからJWTを取得
+        const jwtToken = cookies.jwtToken;
+        // JWTを使ってAPIを叩く
+        const response = await fetch(`${url}/api/dig`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `${jwtToken}`,
+            },
+            body: JSON.stringify(formData),
+        });
+        if (response.ok) {
+            props.onClose();
+            // fetchDigを呼び出して投稿を再取得
+            props.fetchDigs(0);
+        } else {
+            console.log(response);
+            alert('投稿に失敗しました');
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 flex items-center justify-center z-10">
+            <div className="modal-container bg-white w-1/3 rounded-lg p-4 shadow-lg border-2">
+                <form onSubmit={handleSubmit} className=" px-8 pt-6 pb-8 mb-4">
+                    <div>
+                        <div className="text-xl font-bold text-center">edit dig</div>
+                    </div>
+                    <div className='mt-5'>
+                        <label className="block text-gray-700 font-bold" htmlFor="url">
+                            URL
+                        </label>
+                        <input
+                            type="text"
+                            id="url"
+                            name="url"
+                            value={formData.url}
+                            onChange={handleChange}
+                            className="mt-2 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            placeholder="URLを入力してください（必須）"
+                        />
+                    </div>
+                    <div className="mt-3">
+                        <label className="block text-gray-700 font-bold" htmlFor="artist">
+                            artist
+                        </label>
+                        <input
+                            type="text"
+                            id="artist"
+                            name="artist"
+                            value={formData.artist}
+                            onChange={handleChange}
+                            className="mt-2 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            placeholder="アーティスト名を入力してください"
+                        />
+                    </div>
+                    <div className="mt-3">
+                        <label className="block text-gray-700 font-bold" htmlFor="title">
+                            title
+                        </label>
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            value={formData.title}
+                            onChange={handleChange}
+                            className="mt-2 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            placeholder="曲名を入力してください"
+                        />
+                    </div>
+
+                    <div className="mt-3">
+                        <label className="block text-gray-700 font-bold" htmlFor="tags">
+                            tags
+                        </label>
+                        <input
+                            id="tags"
+                            name="tags"
+                            value={formData.tags.join(' ')}
+                            onChange={handleChangeTags}
+                            className="mt-2 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            placeholder="example: pops rock (英数字のみ・半角スペース区切り)"
+                        />
+                    </div>
+                    <div className="mt-5 flex items-center justify-center">
+                        <button
+                            type="button"
+                            onClick={props.onClose}
+                            className="bg-red-400 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-auto"
+                        >
+                            cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        >
+                            submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default DigEditModal;

@@ -8,52 +8,29 @@ module.exports = router;
 
 // ログイン
 router.post('/', (req, res) => {
-    const  { username, email, password } = req.body;
-    // emailでログインする場合
-    if (email) {
-        pool.query("select * from users where email = $1", [email], async (err, result) => {
-            if (err) {
-                console.log(err);
-            } else {
-                // ユーザーが存在しない場合
-                if (result.rows.length === 0) {
-                    return res.status(401).json({ message: "ユーザーが存在しません" });
-                }
-                // パスワードが一致しない場合
-                if (!(await bcrypt.compare(password, result.rows[0].hashed_password))) {
-                    return res.status(402).json({ message: "パスワードが一致しません" });
-                }
-                // JWTを発行
-                const token = JWT.sign({ username: result.rows[0].username }, process.env.JWT_SECRET);
-                const response = {
-                    status: "success",
-                    token: token
-                }
-                res.status(201).json(response);
+    const { username, password } = req.body;
+    // usernameでログインする場合
+    pool.query("select * from users where username = $1", [username], async (err, result) => {
+        if (err) {
+            console.log(err);
+        } else {
+            // ユーザーが存在しない場合
+            if (result.rows.length === 0) {
+                return res.status(401).json({ message: "ユーザーが存在しません" });
             }
-        });
-    } else {
-        // usernameでログインする場合
-        pool.query("select * from users where username = $1", [username], async (err, result) => {
-            if (err) {
-                console.log(err);
-            } else {
-                // ユーザーが存在しない場合
-                if (result.rows.length === 0) {
-                    return res.status(401).json({ message: "ユーザーが存在しません" });
-                }
-                // パスワードが一致しない場合
-                if (!(await bcrypt.compare(password, result.rows[0].hashed_password))) {
-                    return res.status(402).json({ message: "パスワードが一致しません" });
-                }
-                // JWTを発行
-                const token = JWT.sign({ user_id: result.rows[0].user_id, username: result.rows[0].username }, process.env.JWT_SECRET);
-                const response = {
-                    status: "success",
-                    token: token
-                }
-                res.status(201).json(response);
+            // パスワードが一致しない場合
+            if (!(await bcrypt.compare(password, result.rows[0].hashed_password))) {
+                return res.status(402).json({ message: "パスワードが一致しません" });
             }
-        });
-    }
+            // JWTを発行
+            const token = JWT.sign({ user_id: result.rows[0].user_id, username: result.rows[0].username }, process.env.JWT_SECRET);
+            const response = {
+                status: "success",
+                token: token,
+                username: result.rows[0].username,
+                userId: result.rows[0].user_id
+            }
+            res.status(201).json(response);
+        }
+    });
 });
