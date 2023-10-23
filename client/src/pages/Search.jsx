@@ -55,7 +55,7 @@ const Search = () => {
     }, [q, page, toggeleReload])
 
     return (
-        <><button onClick={() => {console.log(q)}}>currentQ</button>
+        <>
             <div className="w-4/5 flex flex-col justify-center items-center mx-auto">
                 <div className='flex justify-center items-center pt-5'>
                     <div className='font-bold text-3xl'>
