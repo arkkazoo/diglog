@@ -59,6 +59,8 @@ router.get('/dig', async (req, res) => {
     params.push(limit);
     params.push(offset);
 
+    console.log(q, searchWords, tags, statement, params)
+
     const digs = await pool.query(statement, params);
     
     res.send(digs.rows);

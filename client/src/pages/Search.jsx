@@ -34,9 +34,7 @@ const Search = () => {
         e.preventDefault()
         // (" ", "#") -> ("+", "%23")
         let newQuery = formData.replace(/\s+/g, '+').replace(/#/g, '%23')
-        navigateTo(`/search?q=${newQuery}`)
-        setQ(newQuery)
-        // fetchDigs(q)
+        fetchDigs(newQuery)
     }
 
     const fetchDigs = async (query) => {
