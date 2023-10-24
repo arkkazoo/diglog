@@ -61,7 +61,7 @@ router.post('/', async (req, res) => {
 
     const { url, artist, title, tags } = req.body;
     const jwtToken = req.headers.authorization;
-    let user_id;
+    let user_id, domain;
 
     try {
         const decoded = JWT.verify(jwtToken, process.env.JWT_SECRET);
@@ -76,7 +76,7 @@ router.post('/', async (req, res) => {
     }
 
     try {
-        const domain = identifyDomain(url);
+        domain = identifyDomain(url);
         if (domain === null) {
             return res.status(400).json({ message: "invalid domain. url:" + url })
         }
@@ -111,7 +111,7 @@ router.post('/', async (req, res) => {
             }
         }
 
-        console.log("dig.post", digRows[0].dig_id);
+        console.log("DIG POST:", "user_id:" + user_id, "dig_id:" + digRows[0].dig_id, artist, "-", title, tags, url);
         res.status(200).json({ message: "success" });
 
     } catch (err) {
