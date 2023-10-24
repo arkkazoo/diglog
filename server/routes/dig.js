@@ -12,6 +12,9 @@ router.get('/', async (req, res) => {
     const offset = req.query.offset || 0;
     const limit = req.query.limit || 20;
     const user_id = req.query.userId;
+
+    console.log("INFO: DIG GET REQUESTED query:" + req.query);
+
     let statement;
 
     if (user_id) {
@@ -42,8 +45,9 @@ router.get('/', async (req, res) => {
         pool.query(statement[0], statement[1], (err, result) => {
 
             if (err) {
-                console.log(err);
+                console.log("ERROR: DIG GET FAILED\n" + err);
             } else {
+                console.log("INFO: DIG GET COMPLETED statement:" + statement);
                 res.status(200).json(result.rows);
             }
 
@@ -61,6 +65,9 @@ router.post('/', async (req, res) => {
 
     const { url, artist, title, tags } = req.body;
     const jwtToken = req.headers.authorization;
+
+    console.log("INFO: DIG POST REQESTED artist:" + artist, "title:" + title, "tags:" + tags, "url:" + url);
+
     let user_id, domain;
 
     try {
@@ -69,6 +76,7 @@ router.post('/', async (req, res) => {
             return res.send("invalid token");
         }
         user_id = decoded.user_id;
+        console.log("INFO: DIG POST PROCCESSING user_id:" + user_id)
 
     } catch (err) {
         console.log(err);
@@ -111,11 +119,11 @@ router.post('/', async (req, res) => {
             }
         }
 
-        console.log("DIG POST:", "user_id:" + user_id, "dig_id:" + digRows[0].dig_id, artist, "-", title, tags, url);
+        console.log("INFO: DIG POST COMPLETED", "user_id:" + user_id, "dig_id:" + digRows[0].dig_id, artist, "-", title, tags, url);
         res.status(200).json({ message: "success" });
 
     } catch (err) {
-        console.log(err);
+        console.log("INFO: DIG POST FAILED\n" + err);
         res.status(400).json({ message: "failed to insert dig" });
     }
 });
@@ -125,7 +133,7 @@ router.post('/', async (req, res) => {
 router.put('/', async (req, res) => {
 
     const { dig_id, url, artist, title, tags } = req.body;
-    let user_id
+    let user_id, domain;
 
     try {
         const jwtToken = req.headers.authorization
@@ -141,7 +149,7 @@ router.put('/', async (req, res) => {
     }
 
     try {
-        const domain = identifyDomain(url);
+        domain = identifyDomain(url);
         if (domain === null) {
             return res.send("invalid domain. url:" + url);
         }
@@ -184,12 +192,12 @@ router.put('/', async (req, res) => {
                 });
             }
 
-            console.log("dig.put", dig_id);
+            console.log("INFO: DIG PUT COMPLETED dig_id" + dig_id, "");
             return res.status(200).json({ message: "success" });
         }
 
     } catch (err) {
-        console.log(err)
+        console.log("ERROR: DIG PUT FAILED\n", err)
     }
 });
 
@@ -199,6 +207,7 @@ router.delete('/', (req, res) => {
 
     const dig_id = req.body.dig_id;
     let user_id;
+    console.log("INFO: DIG DELETE REQUESTED dig_id:" + dig_id);
 
     try {
         const jwtToken = req.headers.authorization
@@ -225,20 +234,23 @@ router.delete('/', (req, res) => {
                     // digs_tagsの削除
                     pool.query("delete from digs_tags where dig_id = $1", [dig_id], (err, result) => {
                         if (err) {
-                            console.log(err);
+                            console.log("ERROR: DIG DELETE at digs_tags\n", err);
+
+                        } else {
+                            console.log("INFO: DIG DELETE COMPLETED dig_id:" + dig_id, "user_id" + user_id);
+                            res.status(200).json({ message: "deleted" });
                         }
                     });
-                    console.log("dig.delete", dig_id);
-                    res.status(200).json({ message: "deleted" });
 
                 } else {
-                    res.status(400).json({ message: "error: dig.delete 2" });
+
+                    res.status(400).json({ message: "error: dig.delete" });
                 }
             }
         });
 
     } catch (err) {
-        console.log(err)
+        console.log("ERROR: DIG DELETE FAILED\n", err)
     }
 });
 
@@ -247,6 +259,9 @@ router.delete('/', (req, res) => {
 router.get('/random', async (req, res) => {
 
     let user_id;
+
+    console.log("INFO: DIG RANDOM REQUESTED")
+
     // ログインしていない場合はuser_idを0にして全ユーザーのdigを対象にする
     if (!req.headers.authorization || req.authorization === "" || req.headers.authorization === "undefined") {
         user_id = 0;
@@ -269,10 +284,13 @@ router.get('/random', async (req, res) => {
         if (data.rows.length === 0) {
             return res.status(400).json({ message: "no dig found" });
         }
+
+        const dig = data.rows[0];
+        console.log("INFO: DIG RANDOM COMPLETED user_id:" + user_id, "dig_id:" + dig.dig_id, dig.artist, dig.title, dig.url)
         return res.status(200).json(data.rows[0]);
 
     } catch (err) {
-        console.log(err)
+        console.log("ERROR: DIG RANDOM FAILED\n", err)
         return res.status(400).json({ message: "failed to select dig" });
     }
 });
