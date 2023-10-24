@@ -41,13 +41,9 @@ router.get('/dig', async (req, res) => {
 
     // タグ検索はand 完全一致(大文字小文字は区別しない)で検索
     tags.forEach((tag, index) => {
-        if (index != 0) {
             console.log("index", index)
             statement += " and digs.dig_id IN (select digs.dig_id from digs left join digs_tags on digs.dig_id = digs_tags.dig_id left join tags on digs_tags.tag_id = tags.tag_id";
             statement += ` where lower(tags.tag_name) = lower($${parameters_index++}))`;
-        } else {
-        statement += ` and lower(tags.tag_name) = lower($${parameters_index++})`;
-        }
         params.push(`${tag.toLowerCase()}`);
     });
 
