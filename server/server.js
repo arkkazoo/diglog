@@ -28,5 +28,5 @@ app.listen(port, () => {
 setInterval(keepServerActive, 10*60 * 1000);
 
 function keepServerActive () {
-  const i = 1;
+  console.log("INFO: keep server active")
 }
