@@ -21,4 +21,12 @@ app.use('/api/norma', normaRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+  
 });
+
+// bypass render.com's inactivity detection
+setInterval(keepServerActive, 10*60 * 1000);
+
+function keepServerActive () {
+  const i = 1;
+}
