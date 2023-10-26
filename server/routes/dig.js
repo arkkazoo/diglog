@@ -13,8 +13,6 @@ router.get('/', async (req, res) => {
     const limit = req.query.limit || 20;
     const user_id = req.query.userId;
 
-    console.log("INFO: DIG GET REQUESTED query:" + req.query);
-
     let statement;
 
     if (user_id) {
@@ -47,7 +45,6 @@ router.get('/', async (req, res) => {
             if (err) {
                 console.log("ERROR: DIG GET FAILED\n" + err);
             } else {
-                console.log("INFO: DIG GET COMPLETED statement:" + statement);
                 res.status(200).json(result.rows);
             }
 
