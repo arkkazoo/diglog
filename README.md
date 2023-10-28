@@ -50,12 +50,10 @@ https://diglog.onrender.com/
       <td>Postman</td>
     </tr>
     <tr>
-      <td>コード管理</td>
+      <td>バージョン管理</td>
       <td>Git/GitHub</td>
     </tr>
  </table>
-
-<br>
 
 ## 選定理由
 
@@ -102,7 +100,7 @@ https://diglog.onrender.com/
 ゲストユーザーの機能に加えて以下の機能が利用できる。
 - 楽曲情報の投稿
 - 自身が投稿した楽曲情報へのタグ付け
-- プレイリストの投稿
+- プレイリストの投稿・楽曲のプレイリストへの追加
 - 投稿ノルマの設定
 
 <br>
@@ -116,7 +114,6 @@ https://diglog.onrender.com/
 - 再生待機キューの先頭・末尾への楽曲追加
 
 <br>
-<br>
 
 # 改修案
 - SQLインジェクション対策
@@ -129,6 +126,9 @@ https://diglog.onrender.com/
 <br>
 
 # 今後の課題
+ ## Typescriptの導入
+ TypescriptはJavascriptよりも保守性が高く、実務で一般的に使われる言語のため習得は必須と考える。
+
  ## コードの保守性
 
 具体的には以下の要素の改善。
@@ -141,5 +141,7 @@ https://diglog.onrender.com/
 
 他の人のソースコードを読むなどして学んでいきたい。
 
- ## Typescriptの導入
- TypescriptはJavascriptよりも保守性が高く、実務で一般的に使われる言語のため習得は必須と考える。
+ ## バージョン管理
+
+- コミットの粒度
+- コミットコメントの内容
