@@ -42,9 +42,7 @@ const DigEditModal = (props) => {
         }
 
         const url = import.meta.env.VITE_API_ORIGIN;
-        // CookieからJWTを取得
         const jwtToken = cookies.jwtToken;
-        // JWTを使ってAPIを叩く
         const response = await fetch(`${url}/api/dig`, {
             method: 'PUT',
             headers: {
@@ -55,11 +53,10 @@ const DigEditModal = (props) => {
         });
         if (response.ok) {
             props.onClose();
-            // fetchDigを呼び出して投稿を再取得
             props.fetchDigs(0);
         } else {
             console.log(response);
-            alert('投稿に失敗しました');
+            alert('編集に失敗しました');
         }
     };
 

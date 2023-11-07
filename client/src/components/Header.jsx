@@ -27,7 +27,6 @@ function Header() {
         }
     }, [isLogin]);
 
-    // ユーザー名を取得するためのAPI
     const getUserName = async () => {
         const response = await fetch(`${APIOrigin}/api/user`, {
             method: 'GET',
@@ -48,7 +47,7 @@ function Header() {
         setIsDigModalOpen(true);
     }
 
-    const CloseDigModal = () => {
+    const closeDigModal = () => {
         setIsDigModalOpen(false);
     }
 
@@ -109,7 +108,7 @@ function Header() {
                 </div>
             </header>
             {isDigModalOpen && (
-                <DigModal onClose={CloseDigModal} />
+                <DigModal onClose={closeDigModal} />
             )}
         </>
 

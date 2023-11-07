@@ -80,7 +80,6 @@ const Dig = (props) => {
             },
             body: JSON.stringify({ dig_id: dig_id }),
         })
-        // messageを表示
         const data = await response.json();
         alert(data.message);
         setIsDigDeleteModalOpen(false);

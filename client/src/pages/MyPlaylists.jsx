@@ -32,8 +32,6 @@ function MyPlaylists() {
         setIsPlaylistModalOpen(true);
     };
 
-    
-
     const ClosePlaylistModal = () => {
         setIsPlaylistModalOpen(false);
     };

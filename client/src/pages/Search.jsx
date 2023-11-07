@@ -10,7 +10,7 @@ const Search = () => {
     const { search } = useLocation()
     const query = new URLSearchParams(search);
     const [q, setQ] = useState(query.get('q') || '')
-    const navigateTo = useNavigate()
+    // const navigateTo = useNavigate()
     const [digs, setDigs] = useState([])
     const [formData, setFormData] = useState('')
     const [page, setPage] = useState(0)
@@ -45,7 +45,7 @@ const Search = () => {
     };
 
     useEffect(() => {
-        console.log('useEffect')
+        // console.log('useEffect')
         if (query.get('q')) {
             setFormData(query.get('q'))
             fetchDigs(query.get('q'))

@@ -13,6 +13,7 @@ const DigModal = (props) => {
         title: '',
         tags: [],
     });
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
@@ -32,16 +33,14 @@ const DigModal = (props) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData)
         if (!validateTags(formData.tags)) {
             alert('タグは英数字とアンダーバーのみ使用できます');
             return;
         }
 
         const url = import.meta.env.VITE_API_ORIGIN;
-        // CookieからJWTを取得
         const jwtToken = cookies.jwtToken;
-        // JWTを使ってAPIを叩く
+
         const response = await fetch(`${url}/api/dig`, {
             method: 'POST',
             headers: {

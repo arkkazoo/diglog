@@ -45,6 +45,7 @@ const MusicPlayer = () => {
     }, []
     );
 
+    // シーク処理
     useEffect(() => {
         if (currentPlatform === 'soundcloud') {
             if (isSeeking) {
@@ -77,7 +78,6 @@ const MusicPlayer = () => {
     }, [isPlaying]
     );
 
-    // trackDataが変更されたら、再生する
     useEffect(() => {
         if (trackData.domain === 'youtube') {
             document.getElementById('artistOfPlayer').textContent = trackData.artist;
@@ -104,7 +104,7 @@ const MusicPlayer = () => {
     );
 
     const resetTime = () => {
-        // requestIdがあればrequestAnimationFrameを止める
+        // シークバーを解放
         if (requestId !== null) {
             cancelAnimationFrame(requestId);
         }
@@ -141,7 +141,7 @@ const MusicPlayer = () => {
                 },
                 onStateChange: (event) => {
                     if (event.data === window.YT.PlayerState.PLAYING) {
-                        // プレイヤーが再生中の場合、再生位置をリアルタイムに更新
+                        // プレイヤーが再生中の場合、再生位置をリアルタイムに更新(シークバーが拘束される)
                         const updateCurrentTime = () => {
                             // 分秒に変換
                             const currentTimeMin = Math.floor(event.target.getCurrentTime() / 60);
@@ -152,7 +152,7 @@ const MusicPlayer = () => {
                             setCurrentTime(event.target.getCurrentTime());
                             setCurrentTimeMin(currentTimeMin);
                             setCurrentTimeSec(currentTimeSec);
-                            // currentTimeをリセットできるようにrequestIdをもらう
+                            // シークバーを解放できるようにrequestIdをもらう
                             setRequestId(requestAnimationFrame(updateCurrentTime));
                         };
                         updateCurrentTime();
@@ -203,7 +203,7 @@ const MusicPlayer = () => {
             setCurrentTimeSec(currentTimeSec);
             setCurrentTime(currentTime);
         });
-        // 再生が終わったら、isPlayingをfalseにする
+
         widget1.bind(window.SC.Widget.Events.FINISH, function () {
             setIsPlaying(false);
         });
@@ -245,6 +245,7 @@ const MusicPlayer = () => {
 
     const onSliderChange = (event) => {
         if (requestId !== null && currentPlatform === 'youtube') {
+            // シークバーを解放
             cancelAnimationFrame(requestId);
         }
         const targetTime = event.target.value * 1 / 1000 * duration;
@@ -335,6 +336,7 @@ const MusicPlayer = () => {
 
             <div style={{ position: 'absolute', left: '-9999px' }}>
                 <div id='YTPlayer'></div>
+                {/* HACK: あらかじめsoundcloudプレーヤーを生成するために何かの曲のurlが必要。汚いのでsoundcloudプレーヤーを後から生成する方法募集 */}
                 <iframe id="SCPlayer" width="100%" height="166" scrolling="no" allow="autoplay"
                     src="https://w.soundcloud.com/player/?url=https://soundcloud.com/sssokudo/sokudo-yukiyanagi-luv-redux">
                 </iframe>

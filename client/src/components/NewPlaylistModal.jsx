@@ -19,10 +19,10 @@ const NewPlaylistModal = (props) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
         const url = import.meta.env.VITE_API_ORIGIN;
-        // CookieからJWTを取得
         const jwtToken = cookies.jwtToken;
-        // JWTを使ってAPIを叩く
+
         const response = await fetch(`${url}/api/playlist`, {
             method: 'POST',
             headers: {

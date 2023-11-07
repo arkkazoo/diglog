@@ -47,9 +47,6 @@ const Playlist = (props) => {
         };
     }, [isMenuOpen, isPlaylistOpen]);
 
-    const handleAddCue = () => {
-    };
-
     const handlePlayPlaylist = () => {
         setTrackData(digs[0]);
         const newQueuedTracks = digs.slice(1);
@@ -58,10 +55,6 @@ const Playlist = (props) => {
 
     const handleOpenMenu = () => {
         setIsMenuOpen(!isMenuOpen);
-    };
-
-    const handleEdit = () => {
-        // playlistをパラメータに渡して、編集画面に遷移
     };
 
     const handleDelete = () => {
@@ -78,7 +71,6 @@ const Playlist = (props) => {
             },
             body: JSON.stringify({ playlist_id: playlist_id }),
         })
-        // messageを表示
         const data = await response.json();
         setIsPlaylistDeleteModalOpen(false);
         setToggleReload(!toggleReload);

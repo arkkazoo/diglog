@@ -53,8 +53,6 @@ function Home() {
                 )}
             </div>
 
-
-            {/* pagenation */}
             <PageIndexer page={page} pagePrev={handlePrev} pageNext={handleNext} />
         </div>
     );

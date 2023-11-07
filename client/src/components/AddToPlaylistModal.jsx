@@ -36,11 +36,9 @@ const AddToPlaylistModal = (props) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData)
         const APIOrigin = import.meta.env.VITE_API_ORIGIN;
-        // CookieからJWTを取得
         const jwtToken = cookies.jwtToken;
-        // JWTを使ってAPIを叩く
+
         const response = await fetch(`${APIOrigin}/api/playlist/digs/`, {
             method: 'POST',
             headers: {
@@ -55,7 +53,6 @@ const AddToPlaylistModal = (props) => {
             props.onClose();
         } else {
             console.log(response);
-            alert('投稿に失敗しました');
         }
     };
 
