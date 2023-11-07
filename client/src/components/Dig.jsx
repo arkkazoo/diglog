@@ -1,5 +1,6 @@
 import DomainIcon from "./DomainIcon";
 import { useState, useRef, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import MyContext from "../MyContext";
 import { useCookies } from "react-cookie";
 import DigEditModal from "./DigEditModal";
@@ -18,6 +19,8 @@ const Dig = (props) => {
     const menuRef = useRef(null);
     const { queuedTracks, setQueuedTracks } = useContext(MyContext);
     const { toggleReload, setToggleReload } = useContext(MyContext);
+    const { searchToggle, setSearchToggle } = useContext(MyContext);
+    const navigateTo = useNavigate();
 
     useEffect(() => {
         function handleOutsideClick(event) {
@@ -102,7 +105,12 @@ const Dig = (props) => {
         setIsAddToPlaylistModalOpen(true);
     };
 
-    
+    const handleClickTag = (tagName) => {
+        // 検索画面に並ぶdigのタグをクリックした時にも検索が発火するようにトグルを用意している
+        setSearchToggle(true);
+        navigateTo(`/search?q=%23${tagName}`);
+    }
+
 
     return (
         <div className="flex w-full h-16">
@@ -114,10 +122,10 @@ const Dig = (props) => {
 
                 {(tags && tags[0]) && (
                     <div className="px-4 flex  items-center md:w-2/5  lg:w-1/4 overflow-auto">
-                        {tags.map((tag, index) => {
+                        {tags.map((tagName, index) => {
                             return (
-                                <button key={index} className="p-1 text-twitter hover:underline">
-                                    #{tag}
+                                <button onClick={() => { handleClickTag(tagName) }} key={index} className="p-1 text-twitter hover:underline">
+                                    #{tagName}
                                 </button>
                             );
                         })}

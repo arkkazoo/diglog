@@ -7,14 +7,21 @@ import { useLocation } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 const Search = () => {
-    const { search } = useLocation()
-    const query = new URLSearchParams(search);
-    const [q, setQ] = useState(query.get('q') || '')
-    // const navigateTo = useNavigate()
+    const location = useLocation();
+    // URLSearchParams: クエリを受け取る。渡す際にエスケープした文字(ここでは'+'と'%23')を勝手に元の文字(' 'と'#')に戻してくれるっぽい(?)
+    const searchParams = new URLSearchParams(location.search);
+    const { searchToggle, setSearchToggle } = useContext(MyContext)
     const [digs, setDigs] = useState([])
     const [formData, setFormData] = useState('')
     const [page, setPage] = useState(0)
     const { toggeleReload, setToggleReload } = useContext(MyContext)
+    
+    const navigateTo = useNavigate();
+
+    const escapeQuery = (q) => {
+        // (" ", "#") -> ("+", "%23")
+        return q.replace(/\s+/g, '+').replace(/#/g, '%23')
+    }
 
     const handleChange = (e) => {
         setFormData(e.target.value)
@@ -32,25 +39,26 @@ const Search = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        // (" ", "#") -> ("+", "%23")
-        let newQuery = formData.replace(/\s+/g, '+').replace(/#/g, '%23')
-        fetchDigs(newQuery)
+        navigateTo(`/search?q=${escapeQuery(formData)}`)
+        fetchDigs(escapeQuery(formData))
     }
 
-    const fetchDigs = async (query) => {
+    const fetchDigs = async (q) => {
         const APIOrigin = import.meta.env.VITE_API_ORIGIN;
-        const response = await fetch(`${APIOrigin}/api/search/dig?q=${query}&limit=20&offset=${page * 20}`);
+        const response = await fetch(`${APIOrigin}/api/search/dig?q=${q}&limit=20&offset=${page * 20}`);
         const data = await response.json();
         setDigs(data);
     };
 
     useEffect(() => {
-        // console.log('useEffect')
-        if (query.get('q')) {
-            setFormData(query.get('q'))
-            fetchDigs(query.get('q'))
+        if (searchParams.get('q')) {
+            let q = searchParams.get('q')
+            setFormData(q)
+            fetchDigs(escapeQuery(q))
         }
-    }, [q, page, toggeleReload])
+        setSearchToggle(false)
+    }, [page, toggeleReload, searchToggle])
+
 
     return (
         <>
@@ -63,7 +71,7 @@ const Search = () => {
                 <div className="mt-5 flex justify-center items-center w-1/2">
                     <form className="w-full flex justify-center items-center">
                         <div className="flex items-center border-gray-300 rounded-md border py-2">
-                            <input onChange={handleChange} type="text" className="w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none" />
+                            <input onChange={handleChange} type="text" value={formData} className="w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none" />
                         </div>
                         <div className="ml-3">
                             <button onClick={handleSubmit} className="bg-gray-700 hover:text-red-500 duration-100 text-white font-bold py-2 px-4 rounded-md m-auto">
@@ -80,10 +88,10 @@ const Search = () => {
                             {digs.map((dig, index) => (
                                 <Dig key={index} data={dig} />
                             ))}
-                            <PageIndexer page={page} pagePrev={handlePrev} pageNext={handleNext} fetchDigs={() => {}}/>
                         </>
                         )
                     }
+                    <PageIndexer page={page} pagePrev={handlePrev} pageNext={handleNext} fetchDigs={() => { }} />
                 </div>
             </div>
         </>

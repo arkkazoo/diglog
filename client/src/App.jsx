@@ -26,29 +26,32 @@ function App() {
   const [toggleReload, setToggleReload] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  const [searchToggle, setSearchToggle] = useState(false);
+
   const values = {
     isLogin, setIsLogin,
     trackData, setTrackData,
     queuedTracks, setQueuedTracks,
     toggleReload, setToggleReload,
-    isPlaying, setIsPlaying
+    isPlaying, setIsPlaying,
+    searchToggle, setSearchToggle
   };
 
   return (
     <MyProvider value={values}>
       <BrowserRouter>
         <Header />
-          <Routes>
-            <Route exact path="/" element={<Home />} />
-            <Route path="/mydigs" element={<MyDigs />} />
-            <Route path="/myplaylists" element={<MyPlaylists />} />
-            <Route path="/myplaylists/edit/:id" element={<PlaylistEdit />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/search:params" element={<Search />} />
-            <Route path="/mypage" element={<MyPage />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-          </Routes>
+        <Routes>
+          <Route exact path="/" element={<Home />} />
+          <Route path="/mydigs" element={<MyDigs />} />
+          <Route path="/myplaylists" element={<MyPlaylists />} />
+          <Route path="/myplaylists/edit/:id" element={<PlaylistEdit />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/search:params" element={<Search />} />
+          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
 
         <MusicPlayer />
       </BrowserRouter>
