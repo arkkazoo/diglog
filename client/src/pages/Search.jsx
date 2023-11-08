@@ -54,6 +54,7 @@ const Search = () => {
 
     useEffect(() => {
         let q = searchParams.get('q')
+        if (q === null) return;
         setFormData(q)
         if (isNeedResetPageIndex) {
             setPage(0)
