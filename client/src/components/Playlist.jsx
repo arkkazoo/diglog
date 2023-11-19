@@ -14,7 +14,7 @@ const Playlist = (props) => {
     const [cookies] = useCookies();
     const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
     const { toggleReload, setToggleReload } = useContext(MyContext);
-    const { trackData, setTrackData } = useContext(MyContext);
+    const { playingTrack, setPlayingTrack } = useContext(MyContext);
     const { queuedTracks, setQueuedTracks } = useContext(MyContext);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,7 +48,7 @@ const Playlist = (props) => {
     }, [isMenuOpen, isPlaylistOpen]);
 
     const handlePlayPlaylist = () => {
-        setTrackData(digs[0]);
+        setPlayingTrack(digs[0]);
         const newQueuedTracks = digs.slice(1);
         setQueuedTracks([...newQueuedTracks, ...queuedTracks]);
     };

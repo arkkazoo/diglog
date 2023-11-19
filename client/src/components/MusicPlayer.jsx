@@ -23,8 +23,8 @@ const MusicPlayer = () => {
 
     const [isSeeking, setIsSeeking] = useState(false);
 
-    const { trackData, setTrackData } = useContext(MyContext);
-    const { isPlaying, setIsPlaying } = useContext(MyContext);
+    const { playingTrack, setPlayingTrack } = useContext(MyContext);
+    const { playerHasTrack, setPlayerHasTrack } = useContext(MyContext);
     const { queuedTracks, setQueuedTracks } = useContext(MyContext);
 
     // APIのスクリプトを読み込む
@@ -71,26 +71,26 @@ const MusicPlayer = () => {
     );
 
     useEffect(() => {
-        if (!isPlaying && queuedTracks.length > 0) {
-            setTrackData(queuedTracks[0]);
+        if (!playerHasTrack && queuedTracks.length > 0) {
+            setPlayingTrack(queuedTracks[0]);
             setQueuedTracks(queuedTracks.slice(1));
         }
-    }, [isPlaying]
+    }, [playerHasTrack]
     );
 
     useEffect(() => {
-        if (trackData.domain === 'youtube') {
-            document.getElementById('artistOfPlayer').textContent = trackData.artist;
-            document.getElementById('titleOfPlayer').textContent = trackData.title;
-            const videoId = trackData.url.split('v=')[1].split('&')[0];
+        if (playingTrack.domain === 'youtube') {
+            document.getElementById('artistOfPlayer').textContent = playingTrack.artist;
+            document.getElementById('titleOfPlayer').textContent = playingTrack.title;
+            const videoId = playingTrack.url.split('v=')[1].split('&')[0];
             playYT(videoId);
         }
-        if (trackData.domain === 'soundcloud') {
-            document.getElementById('artistOfPlayer').textContent = trackData.artist;
-            document.getElementById('titleOfPlayer').textContent = trackData.title;
-            playSC(trackData.url);
+        if (playingTrack.domain === 'soundcloud') {
+            document.getElementById('artistOfPlayer').textContent = playingTrack.artist;
+            document.getElementById('titleOfPlayer').textContent = playingTrack.title;
+            playSC(playingTrack.url);
         }
-    }, [trackData]
+    }, [playingTrack]
     );
 
     useEffect(() => {
@@ -136,7 +136,7 @@ const MusicPlayer = () => {
                     setCurrentTime(0);
                     setCurrentTimeMin(0);
                     setCurrentTimeSec("00");
-                    setIsPlaying(true);
+                    setPlayerHasTrack(true);
                     event.target.playVideo();
                 },
                 onStateChange: (event) => {
@@ -158,7 +158,7 @@ const MusicPlayer = () => {
                         updateCurrentTime();
                     }
                     if (event.data === window.YT.PlayerState.ENDED) {
-                        setIsPlaying(false);
+                        setPlayerHasTrack(false);
                     }
                 },
             },
@@ -189,7 +189,7 @@ const MusicPlayer = () => {
                 setCurrentTime(0);
                 setCurrentTimeMin(0);
                 setCurrentTimeSec("00");
-                setIsPlaying(true);
+                setPlayerHasTrack(true);
             });
         });
         widget1.bind(window.SC.Widget.Events.PLAY_PROGRESS, function (e) {
@@ -205,7 +205,7 @@ const MusicPlayer = () => {
         });
 
         widget1.bind(window.SC.Widget.Events.FINISH, function () {
-            setIsPlaying(false);
+            setPlayerHasTrack(false);
         });
 
         setSCPlayer(widget1);

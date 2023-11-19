@@ -18,22 +18,22 @@ import MusicPlayer from './components/MusicPlayer'
 function App() {
   const [isLogin, setIsLogin] = useState(false);
 
-  // trackData: 再生中の曲の情報(artist, title, url, domain, tags)
+  // playingTrack: 再生中の曲の情報(artist, title, url, domain, tags)
   // queuedTracks: 再生待ちの曲の情報
-  const [trackData, setTrackData] = useState('');
+  const [playingTrack, setPlayingTrack] = useState('');
   const [queuedTracks, setQueuedTracks] = useState([]);
 
   const [toggleReload, setToggleReload] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [playerHasTrack, setPlayerHasTrack] = useState(false);
 
   const [searchToggle, setSearchToggle] = useState(false);
 
   const values = {
     isLogin, setIsLogin,
-    trackData, setTrackData,
+    playingTrack, setPlayingTrack,
     queuedTracks, setQueuedTracks,
     toggleReload, setToggleReload,
-    isPlaying, setIsPlaying,
+    playerHasTrack, setPlayerHasTrack,
     searchToggle, setSearchToggle
   };
 
