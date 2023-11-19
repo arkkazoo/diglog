@@ -10,7 +10,7 @@ import AddToPlaylistModal from "./AddToPlaylistModal";
 const Dig = (props) => {
     const apiOrigin = import.meta.env.VITE_API_ORIGIN;
     const { dig_id, user_id, url, domain, artist, title, tags } = props.data;
-    const { trackData, setTrackData } = useContext(MyContext);
+    const { playingTrack, setPlayingTrack } = useContext(MyContext);
     const [cookies] = useCookies();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDigDeleteModalOpen, setIsDigDeleteModalOpen] = useState(false);
@@ -46,7 +46,7 @@ const Dig = (props) => {
     }, [isMenuOpen]);
 
     const handlePlay = () => {
-        setTrackData({ url, domain, artist, title });
+        setPlayingTrack({ url, domain, artist, title });
     };
 
     const handleAddCue = () => {

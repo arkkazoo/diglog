@@ -11,7 +11,7 @@ function Header() {
     const [userName, setUserName] = useState('');
     const [cookies, setCookie, removeCookie] = useCookies();
     const [isDigModalOpen, setIsDigModalOpen] = useState(false);
-    const {trackData, setTrackData} = useContext(MyContext);
+    const {playingTrack, setPlayingTrack} = useContext(MyContext);
 
     useEffect(() => {
         if (cookies.jwtToken) {
@@ -61,7 +61,7 @@ function Header() {
         });
         const response = await data.json();
         if (data.ok) {
-            setTrackData(response);
+            setPlayingTrack(response);
         } else {
             alert(response.message);
         }
