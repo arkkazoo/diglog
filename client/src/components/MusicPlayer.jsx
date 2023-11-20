@@ -27,6 +27,9 @@ const MusicPlayer = () => {
     const { playerHasTrack, setPlayerHasTrack } = useContext(MyContext);
     const { queuedTracks, setQueuedTracks } = useContext(MyContext);
 
+    const { isLoopEnabled, setIsLoopEnabled } = useContext(MyContext);
+    const { loopTargetTracks, setLoopTargetTracks } = useContext(MyContext);
+
     // APIのスクリプトを読み込む
     useEffect(() => {
         const YTScript = document.createElement('script');
@@ -45,7 +48,7 @@ const MusicPlayer = () => {
     }, []
     );
 
-    // シーク処理
+    // 再生進捗バーのシーク時
     useEffect(() => {
         if (currentPlatform === 'soundcloud') {
             if (isSeeking) {
@@ -70,22 +73,28 @@ const MusicPlayer = () => {
     }, [isSeeking]
     );
 
+    // 再生終了時
     useEffect(() => {
         if (!playerHasTrack && queuedTracks.length > 0) {
             setPlayingTrack(queuedTracks[0]);
             setQueuedTracks(queuedTracks.slice(1));
         }
+        else if (!playerHasTrack && queuedTracks.length ==0 && loopTargetTracks.length > 0) {
+            setPlayingTrack(loopTargetTracks[0]);
+            setQueuedTracks(loopTargetTracks.slice(1));
+        }
     }, [playerHasTrack]
     );
 
+    // プレーヤーに曲情報が入った時
     useEffect(() => {
-        if (playingTrack.domain === 'youtube') {
+        if (playingTrack && playingTrack.domain === 'youtube') {
             document.getElementById('artistOfPlayer').textContent = playingTrack.artist;
             document.getElementById('titleOfPlayer').textContent = playingTrack.title;
             const videoId = playingTrack.url.split('v=')[1].split('&')[0];
             playYT(videoId);
         }
-        if (playingTrack.domain === 'soundcloud') {
+        if (playingTrack && playingTrack.domain === 'soundcloud') {
             document.getElementById('artistOfPlayer').textContent = playingTrack.artist;
             document.getElementById('titleOfPlayer').textContent = playingTrack.title;
             playSC(playingTrack.url);
@@ -93,6 +102,7 @@ const MusicPlayer = () => {
     }, [playingTrack]
     );
 
+    // 初回再生時にプレーヤーUIを表示
     useEffect(() => {
         const childHeight = childRef.current.offsetHeight;
         {
@@ -293,6 +303,16 @@ const MusicPlayer = () => {
         }
     };
 
+    const onClickLoop = () => {
+        console.log(isLoopEnabled);
+        setIsLoopEnabled(!isLoopEnabled);
+
+    }
+
+    const onClickConsole = () => {
+        console.log(loopTargetTracks)
+    }
+
     return (
         <div ref={parentRef} className={`fixed bottom-0 w-full transition-transform translate-y-full`}>
             <div className='flex justify-center' ref={childRef}>
@@ -323,10 +343,12 @@ const MusicPlayer = () => {
                                 </div>
                             </div>
                             <div className='flex w-1/4 h-auto'>
+                                {/* <button onClick={onClickConsole} className='pr-3 flex-1'>C</button> */}
                                 <button onClick={onClickBackToStart} className='pr-3 flex-1'>|◁</button>
                                 <button className='pr-3 flex-1' onClick={onClickPlayButton}>▷</button>
                                 <button className='pr-3 flex-1' onClick={onClickPauseButton}>II</button>
                                 <button onClick={onClickSkip} className=' flex-1'>▷|</button>
+                                <button onClick={onClickLoop} className={isLoopEnabled ? "flex-1 text-red-600": "flex-1"}>∞</button>
                             </div>
 
                         </div>
