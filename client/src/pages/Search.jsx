@@ -10,12 +10,13 @@ const Search = () => {
     const location = useLocation();
     // URLSearchParams: クエリを受け取る。渡す際にエスケープした文字(ここでは'+'と'%23')を勝手に元の文字(' 'と'#')に戻してくれるっぽい(?)
     const searchParams = new URLSearchParams(location.search);
+    const { isNeedResetPageIndex, setIsNeedResetPageIndex } = useContext(MyContext);
     const { searchToggle, setSearchToggle } = useContext(MyContext)
     const [digs, setDigs] = useState([])
     const [formData, setFormData] = useState('')
     const [page, setPage] = useState(0)
-    const { toggeleReload, setToggleReload } = useContext(MyContext)
-    
+    const { toggleReload, setToggleReload } = useContext(MyContext)
+
     const navigateTo = useNavigate();
 
     const escapeQuery = (q) => {
@@ -40,28 +41,33 @@ const Search = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         navigateTo(`/search?q=${escapeQuery(formData)}`)
-        fetchDigs(escapeQuery(formData))
+        setPage(0)
+        fetchDigs(escapeQuery(formData), 0)
     }
 
-    const fetchDigs = async (q) => {
+    const fetchDigs = async (q, p = page) => {
         const APIOrigin = import.meta.env.VITE_API_ORIGIN;
-        const response = await fetch(`${APIOrigin}/api/search/dig?q=${q}&limit=20&offset=${page * 20}`);
+        const response = await fetch(`${APIOrigin}/api/search/dig?q=${q}&limit=20&offset=${p * 20}`);
         const data = await response.json();
         setDigs(data);
     };
 
     useEffect(() => {
-        if (searchParams.get('q')) {
-            let q = searchParams.get('q')
-            setFormData(q)
-            fetchDigs(escapeQuery(q))
+        let q = searchParams.get('q')
+        if (q === null) return;
+        setFormData(q)
+        if (isNeedResetPageIndex) {
+            setPage(0)
+            fetchDigs(escapeQuery(q), 0)
+            setIsNeedResetPageIndex(false)
+        } else {
+            fetchDigs(escapeQuery(q), page)
         }
-        setSearchToggle(false)
-    }, [page, toggeleReload, searchToggle])
+    }, [page, toggleReload, searchToggle])
 
 
     return (
-        <>
+        <div className='mb-20'>
             <div className="w-4/5 flex flex-col justify-center items-center mx-auto">
                 <div className='flex justify-center items-center pt-5'>
                     <div className='font-bold text-3xl'>
@@ -94,7 +100,7 @@ const Search = () => {
                     <PageIndexer page={page} pagePrev={handlePrev} pageNext={handleNext} fetchDigs={() => { }} />
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 

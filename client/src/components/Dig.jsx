@@ -19,6 +19,7 @@ const Dig = (props) => {
     const menuRef = useRef(null);
     const { queuedTracks, setQueuedTracks } = useContext(MyContext);
     const { toggleReload, setToggleReload } = useContext(MyContext);
+    const { isNeedResetPageIndex, setIsNeedResetPageIndex } = useContext(MyContext);
     const { searchToggle, setSearchToggle } = useContext(MyContext);
     const navigateTo = useNavigate();
 
@@ -111,7 +112,9 @@ const Dig = (props) => {
 
     const handleClickTag = (tagName) => {
         // 検索画面に並ぶdigのタグをクリックした時にも検索が発火するようにトグルを用意している
-        setSearchToggle(true);
+        // Search.jsxのuseEffectでfetchが多重に発火するのを防ぐために変数を2つ用意している。汚いので改善案募集。
+        setIsNeedResetPageIndex(true);
+        setSearchToggle(!searchToggle);
         navigateTo(`/search?q=%23${tagName}`);
     }
 

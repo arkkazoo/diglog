@@ -29,6 +29,7 @@ function App() {
   const [toggleReload, setToggleReload] = useState(false);
   const [playerHasTrack, setPlayerHasTrack] = useState(false);
 
+  const [isNeedResetPageIndex, setIsNeedResetPageIndex] = useState(false);
   const [searchToggle, setSearchToggle] = useState(false);
 
   const values = {
@@ -37,8 +38,10 @@ function App() {
     queuedTracks, setQueuedTracks,
     isLoopEnabled, setIsLoopEnabled,
     loopTargetTracks, setLoopTargetTracks,
-    toggleReload, setToggleReload,
     playerHasTrack, setPlayerHasTrack,
+    toggleReload, setToggleReload,
+    // Search.jsxのuseEffectでfetchが多重に発火するのを防ぐために変数を2つ用意している。汚いので改善案募集。
+    isNeedResetPageIndex, setIsNeedResetPageIndex,
     searchToggle, setSearchToggle
   };
 
