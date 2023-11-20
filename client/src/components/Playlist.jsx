@@ -17,6 +17,8 @@ const Playlist = (props) => {
     const { playingTrack, setPlayingTrack } = useContext(MyContext);
     const { queuedTracks, setQueuedTracks } = useContext(MyContext);
 
+    const { loopTargetTracks, setLoopTargetTracks } = useContext(MyContext);
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isPlaylistDeleteModalOpen, setIsPlaylistDeleteModalOpen] = useState(false);
     const menuRef = useRef(null);
@@ -51,6 +53,7 @@ const Playlist = (props) => {
         setPlayingTrack(digs[0]);
         const newQueuedTracks = digs.slice(1);
         setQueuedTracks([...newQueuedTracks, ...queuedTracks]);
+        setLoopTargetTracks(digs);
     };
 
     const handleOpenMenu = () => {
@@ -76,10 +79,6 @@ const Playlist = (props) => {
         setToggleReload(!toggleReload);
     };
 
-
-    const handlePlay = () => {
-    }
-
     return (
         <div className="flex flex-col w-full mx-auto">
             <div className="flex w-full mx-auto h-16">
@@ -90,7 +89,7 @@ const Playlist = (props) => {
                     <div className="flex-col px-4 border-r text-lg 1/2 md:w-2/5 flex justify-center lg:w-1/4">{playlist_name}</div>
 
                     <div className="flex ml-auto">
-                        <div className="ml-auto px-4 flex justify-center items-center" onClick={handlePlay}>
+                        <div className="ml-auto px-4 flex justify-center items-center">
                             <div onClick={handlePlayPlaylist}className="rounded-md border-2 border-gray-300 p-1 font-bold text-gray-600 duration-100 hover:ease-in hover:bg-gray-600 hover:text-white hover:border-gray-600 cursor-pointer">
                                 play
                             </div>

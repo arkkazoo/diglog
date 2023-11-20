@@ -23,6 +23,9 @@ function App() {
   const [playingTrack, setPlayingTrack] = useState('');
   const [queuedTracks, setQueuedTracks] = useState([]);
 
+  const [isLoopEnabled, setIsLoopEnabled] = useState(false);
+  const [loopTargetTracks, setLoopTargetTracks] = useState([]);
+
   const [toggleReload, setToggleReload] = useState(false);
   const [playerHasTrack, setPlayerHasTrack] = useState(false);
 
@@ -32,6 +35,8 @@ function App() {
     isLogin, setIsLogin,
     playingTrack, setPlayingTrack,
     queuedTracks, setQueuedTracks,
+    isLoopEnabled, setIsLoopEnabled,
+    loopTargetTracks, setLoopTargetTracks,
     toggleReload, setToggleReload,
     playerHasTrack, setPlayerHasTrack,
     searchToggle, setSearchToggle
