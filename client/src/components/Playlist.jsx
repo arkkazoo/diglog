@@ -17,7 +17,6 @@ const Playlist = (props) => {
     const { playingTrack, setPlayingTrack } = useContext(MyContext);
     const { queuedTracks, setQueuedTracks } = useContext(MyContext);
 
-    const { isLoopEnabled, setIsLoopEnabled } = useContext(MyContext);
     const { loopTargetTracks, setLoopTargetTracks } = useContext(MyContext);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -54,6 +53,7 @@ const Playlist = (props) => {
         setPlayingTrack(digs[0]);
         const newQueuedTracks = digs.slice(1);
         setQueuedTracks([...newQueuedTracks, ...queuedTracks]);
+        setLoopTargetTracks(digs);
     };
 
     const handleOpenMenu = () => {
@@ -79,15 +79,6 @@ const Playlist = (props) => {
         setToggleReload(!toggleReload);
     };
 
-
-    const handlePlayLoop = () => {
-        setIsLoopEnabled(true);
-        console.log(digs);
-        setLoopTargetTracks(digs);
-        setQueuedTracks(digs.slice(1));
-        setPlayingTrack(digs[0]);
-    }
-
     return (
         <div className="flex flex-col w-full mx-auto">
             <div className="flex w-full mx-auto h-16">
@@ -101,11 +92,6 @@ const Playlist = (props) => {
                         <div className="ml-auto px-4 flex justify-center items-center">
                             <div onClick={handlePlayPlaylist}className="rounded-md border-2 border-gray-300 p-1 font-bold text-gray-600 duration-100 hover:ease-in hover:bg-gray-600 hover:text-white hover:border-gray-600 cursor-pointer">
                                 play
-                            </div>
-                        </div>
-                        <div className="ml-auto px-4 flex justify-center items-center">
-                            <div onClick={handlePlayLoop}className="rounded-md border-2 border-gray-300 p-1 font-bold text-gray-600 duration-100 hover:ease-in hover:bg-gray-600 hover:text-white hover:border-gray-600 cursor-pointer">
-                                loop
                             </div>
                         </div>
                         {cookies.userId === user_id && !isMenuOpen && (

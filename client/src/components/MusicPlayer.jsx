@@ -75,13 +75,15 @@ const MusicPlayer = () => {
 
     // 再生終了時
     useEffect(() => {
-        if (!playerHasTrack && queuedTracks.length > 0) {
-            setPlayingTrack(queuedTracks[0]);
-            setQueuedTracks(queuedTracks.slice(1));
-        }
-        else if (!playerHasTrack && queuedTracks.length ==0 && loopTargetTracks.length > 0) {
-            setPlayingTrack(loopTargetTracks[0]);
-            setQueuedTracks(loopTargetTracks.slice(1));
+        if (!playerHasTrack) {
+            if (queuedTracks.length > 0) {
+                setPlayingTrack(queuedTracks[0]);
+                setQueuedTracks(queuedTracks.slice(1));
+            }
+            else if (isLoopEnabled && loopTargetTracks.length > 0) {
+                setPlayingTrack(loopTargetTracks[0]);
+                setQueuedTracks(loopTargetTracks.slice(1));
+            }
         }
     }, [playerHasTrack]
     );
@@ -168,7 +170,9 @@ const MusicPlayer = () => {
                         updateCurrentTime();
                     }
                     if (event.data === window.YT.PlayerState.ENDED) {
+                        cancelAnimationFrame(requestId);
                         setPlayerHasTrack(false);
+                        setPlayingTrack(null);
                     }
                 },
             },
@@ -216,6 +220,7 @@ const MusicPlayer = () => {
 
         widget1.bind(window.SC.Widget.Events.FINISH, function () {
             setPlayerHasTrack(false);
+            setPlayingTrack(null);
         });
 
         setSCPlayer(widget1);
@@ -287,10 +292,20 @@ const MusicPlayer = () => {
     const onClickSkip = () => {
         const endTime = duration - 0.01;
         if (currentPlatform === 'youtube') {
+            if (requestId !== null) {
+                // シークバーを解放
+                cancelAnimationFrame(requestId);
+            }
             YTPlayer.seekTo(endTime);
+            setCurrentTime(endTime);
+            setCurrentTimeMin("-");
+            setCurrentTimeSec("--");
         }
         if (currentPlatform === 'soundcloud') {
             SCPlayer.seekTo(endTime * 1000);
+            setCurrentTime(endTime);
+            setCurrentTimeMin("-");
+            setCurrentTimeSec("--");
         }
     };
 
@@ -304,14 +319,9 @@ const MusicPlayer = () => {
     };
 
     const onClickLoop = () => {
-        console.log(isLoopEnabled);
         setIsLoopEnabled(!isLoopEnabled);
-
     }
 
-    const onClickConsole = () => {
-        console.log(loopTargetTracks)
-    }
 
     return (
         <div ref={parentRef} className={`fixed bottom-0 w-full transition-transform translate-y-full`}>
@@ -343,12 +353,11 @@ const MusicPlayer = () => {
                                 </div>
                             </div>
                             <div className='flex w-1/4 h-auto'>
-                                {/* <button onClick={onClickConsole} className='pr-3 flex-1'>C</button> */}
                                 <button onClick={onClickBackToStart} className='pr-3 flex-1'>|◁</button>
                                 <button className='pr-3 flex-1' onClick={onClickPlayButton}>▷</button>
                                 <button className='pr-3 flex-1' onClick={onClickPauseButton}>II</button>
                                 <button onClick={onClickSkip} className=' flex-1'>▷|</button>
-                                <button onClick={onClickLoop} className={isLoopEnabled ? "flex-1 text-red-600": "flex-1"}>∞</button>
+                                <button onClick={onClickLoop} className={isLoopEnabled ? "flex-1 text-red-600" : "flex-1"}>∞</button>
                             </div>
 
                         </div>
