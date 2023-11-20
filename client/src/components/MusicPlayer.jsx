@@ -23,9 +23,12 @@ const MusicPlayer = () => {
 
     const [isSeeking, setIsSeeking] = useState(false);
 
-    const { trackData, setTrackData } = useContext(MyContext);
-    const { isPlaying, setIsPlaying } = useContext(MyContext);
+    const { playingTrack, setPlayingTrack } = useContext(MyContext);
+    const { playerHasTrack, setPlayerHasTrack } = useContext(MyContext);
     const { queuedTracks, setQueuedTracks } = useContext(MyContext);
+
+    const { isLoopEnabled, setIsLoopEnabled } = useContext(MyContext);
+    const { loopTargetTracks, setLoopTargetTracks } = useContext(MyContext);
 
     // APIのスクリプトを読み込む
     useEffect(() => {
@@ -45,7 +48,7 @@ const MusicPlayer = () => {
     }, []
     );
 
-    // シーク処理
+    // 再生進捗バーのシーク時
     useEffect(() => {
         if (currentPlatform === 'soundcloud') {
             if (isSeeking) {
@@ -70,29 +73,38 @@ const MusicPlayer = () => {
     }, [isSeeking]
     );
 
+    // 再生終了時
     useEffect(() => {
-        if (!isPlaying && queuedTracks.length > 0) {
-            setTrackData(queuedTracks[0]);
-            setQueuedTracks(queuedTracks.slice(1));
+        if (!playerHasTrack) {
+            if (queuedTracks.length > 0) {
+                setPlayingTrack(queuedTracks[0]);
+                setQueuedTracks(queuedTracks.slice(1));
+            }
+            else if (isLoopEnabled && loopTargetTracks.length > 0) {
+                setPlayingTrack(loopTargetTracks[0]);
+                setQueuedTracks(loopTargetTracks.slice(1));
+            }
         }
-    }, [isPlaying]
+    }, [playerHasTrack]
     );
 
+    // プレーヤーに曲情報が入った時
     useEffect(() => {
-        if (trackData.domain === 'youtube') {
-            document.getElementById('artistOfPlayer').textContent = trackData.artist;
-            document.getElementById('titleOfPlayer').textContent = trackData.title;
-            const videoId = trackData.url.split('v=')[1].split('&')[0];
+        if (playingTrack && playingTrack.domain === 'youtube') {
+            document.getElementById('artistOfPlayer').textContent = playingTrack.artist;
+            document.getElementById('titleOfPlayer').textContent = playingTrack.title;
+            const videoId = playingTrack.url.split('v=')[1].split('&')[0];
             playYT(videoId);
         }
-        if (trackData.domain === 'soundcloud') {
-            document.getElementById('artistOfPlayer').textContent = trackData.artist;
-            document.getElementById('titleOfPlayer').textContent = trackData.title;
-            playSC(trackData.url);
+        if (playingTrack && playingTrack.domain === 'soundcloud') {
+            document.getElementById('artistOfPlayer').textContent = playingTrack.artist;
+            document.getElementById('titleOfPlayer').textContent = playingTrack.title;
+            playSC(playingTrack.url);
         }
-    }, [trackData]
+    }, [playingTrack]
     );
 
+    // 初回再生時にプレーヤーUIを表示
     useEffect(() => {
         const childHeight = childRef.current.offsetHeight;
         {
@@ -136,7 +148,7 @@ const MusicPlayer = () => {
                     setCurrentTime(0);
                     setCurrentTimeMin(0);
                     setCurrentTimeSec("00");
-                    setIsPlaying(true);
+                    setPlayerHasTrack(true);
                     event.target.playVideo();
                 },
                 onStateChange: (event) => {
@@ -158,7 +170,9 @@ const MusicPlayer = () => {
                         updateCurrentTime();
                     }
                     if (event.data === window.YT.PlayerState.ENDED) {
-                        setIsPlaying(false);
+                        cancelAnimationFrame(requestId);
+                        setPlayerHasTrack(false);
+                        setPlayingTrack(null);
                     }
                 },
             },
@@ -189,7 +203,7 @@ const MusicPlayer = () => {
                 setCurrentTime(0);
                 setCurrentTimeMin(0);
                 setCurrentTimeSec("00");
-                setIsPlaying(true);
+                setPlayerHasTrack(true);
             });
         });
         widget1.bind(window.SC.Widget.Events.PLAY_PROGRESS, function (e) {
@@ -205,7 +219,8 @@ const MusicPlayer = () => {
         });
 
         widget1.bind(window.SC.Widget.Events.FINISH, function () {
-            setIsPlaying(false);
+            setPlayerHasTrack(false);
+            setPlayingTrack(null);
         });
 
         setSCPlayer(widget1);
@@ -277,10 +292,20 @@ const MusicPlayer = () => {
     const onClickSkip = () => {
         const endTime = duration - 0.01;
         if (currentPlatform === 'youtube') {
+            if (requestId !== null) {
+                // シークバーを解放
+                cancelAnimationFrame(requestId);
+            }
             YTPlayer.seekTo(endTime);
+            setCurrentTime(endTime);
+            setCurrentTimeMin("-");
+            setCurrentTimeSec("--");
         }
         if (currentPlatform === 'soundcloud') {
             SCPlayer.seekTo(endTime * 1000);
+            setCurrentTime(endTime);
+            setCurrentTimeMin("-");
+            setCurrentTimeSec("--");
         }
     };
 
@@ -292,6 +317,11 @@ const MusicPlayer = () => {
             SCPlayer.seekTo(0);
         }
     };
+
+    const onClickLoop = () => {
+        setIsLoopEnabled(!isLoopEnabled);
+    }
+
 
     return (
         <div ref={parentRef} className={`fixed bottom-0 w-full transition-transform translate-y-full`}>
@@ -327,6 +357,7 @@ const MusicPlayer = () => {
                                 <button className='pr-3 flex-1' onClick={onClickPlayButton}>▷</button>
                                 <button className='pr-3 flex-1' onClick={onClickPauseButton}>II</button>
                                 <button onClick={onClickSkip} className=' flex-1'>▷|</button>
+                                <button onClick={onClickLoop} className={isLoopEnabled ? "flex-1 text-red-600" : "flex-1"}>∞</button>
                             </div>
 
                         </div>

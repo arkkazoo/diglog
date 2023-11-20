@@ -18,24 +18,28 @@ import MusicPlayer from './components/MusicPlayer'
 function App() {
   const [isLogin, setIsLogin] = useState(false);
 
-  // trackData: 再生中の曲の情報(artist, title, url, domain, tags)
+  // playingTrack: 再生中の曲の情報(artist, title, url, domain, tags)
   // queuedTracks: 再生待ちの曲の情報
-  const [trackData, setTrackData] = useState('');
+  const [playingTrack, setPlayingTrack] = useState('');
   const [queuedTracks, setQueuedTracks] = useState([]);
 
+  const [isLoopEnabled, setIsLoopEnabled] = useState(false);
+  const [loopTargetTracks, setLoopTargetTracks] = useState([]);
+
   const [toggleReload, setToggleReload] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [playerHasTrack, setPlayerHasTrack] = useState(false);
 
   const [isNeedResetPageIndex, setIsNeedResetPageIndex] = useState(false);
   const [searchToggle, setSearchToggle] = useState(false);
 
   const values = {
     isLogin, setIsLogin,
-    trackData, setTrackData,
+    playingTrack, setPlayingTrack,
     queuedTracks, setQueuedTracks,
+    isLoopEnabled, setIsLoopEnabled,
+    loopTargetTracks, setLoopTargetTracks,
+    playerHasTrack, setPlayerHasTrack,
     toggleReload, setToggleReload,
-    isPlaying, setIsPlaying,
-
     // Search.jsxのuseEffectでfetchが多重に発火するのを防ぐために変数を2つ用意している。汚いので改善案募集。
     isNeedResetPageIndex, setIsNeedResetPageIndex,
     searchToggle, setSearchToggle

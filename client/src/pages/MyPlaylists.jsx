@@ -19,7 +19,6 @@ function MyPlaylists() {
         const response = await fetch(`${APIOrigin}/api/playlist/digs?userId=${cookies.userId}&limit=20&offset=${offset * 20}`);
         const data = await response.json();
         setPlaylists(data);
-        console.log(data)
     };
 
     useEffect(() => {
