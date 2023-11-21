@@ -4,7 +4,7 @@ import MyContext from "../MyContext";
 import { useCookies } from "react-cookie";
 import DigEditModal from "./DigEditModal";
 import PlaylistDeleteModal from "./PlaylistDeleteModal";
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import Dig from "./Dig";
 
@@ -18,6 +18,7 @@ const Playlist = (props) => {
     const { queuedTracks, setQueuedTracks } = useContext(MyContext);
 
     const { loopTargetTracks, setLoopTargetTracks } = useContext(MyContext);
+    const { isShuffleEnabled, setIsShuffleEnabled } = useContext(MyContext);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isPlaylistDeleteModalOpen, setIsPlaylistDeleteModalOpen] = useState(false);
@@ -56,6 +57,18 @@ const Playlist = (props) => {
         setLoopTargetTracks(digs);
     };
 
+    const handlePlayShuffle = () => {
+        setIsShuffleEnabled(true);
+        setLoopTargetTracks(digs);
+        const randomIndex = Math.floor(Math.random() * digs.length);
+        const newQueuedTracks = [];
+        for (let i = 0; i < digs.length; i++) {
+            if (i != randomIndex) newQueuedTracks.push(digs[i]);
+        }
+        setPlayingTrack(digs[randomIndex]);
+        setQueuedTracks(newQueuedTracks);
+    }
+
     const handleOpenMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
@@ -90,8 +103,12 @@ const Playlist = (props) => {
 
                     <div className="flex ml-auto">
                         <div className="ml-auto px-4 flex justify-center items-center">
-                            <div onClick={handlePlayPlaylist}className="rounded-md border-2 border-gray-300 p-1 font-bold text-gray-600 duration-100 hover:ease-in hover:bg-gray-600 hover:text-white hover:border-gray-600 cursor-pointer">
+                            <div onClick={handlePlayPlaylist} className="rounded-md border-2 border-gray-300 p-1 font-bold text-gray-600 duration-100 hover:ease-in hover:bg-gray-600 hover:text-white hover:border-gray-600 cursor-pointer">
                                 play
+                            </div>
+                        </div><div className="ml-auto pr-4 flex justify-center items-center">
+                            <div onClick={handlePlayShuffle} className="rounded-md border-2 border-gray-300 p-1 font-bold text-gray-600 duration-100 hover:ease-in hover:bg-gray-600 hover:text-white hover:border-gray-600 cursor-pointer">
+                                shuffle
                             </div>
                         </div>
                         {cookies.userId === user_id && !isMenuOpen && (
@@ -148,8 +165,8 @@ const Playlist = (props) => {
             {isPlaylistDeleteModalOpen && (
                 <PlaylistDeleteModal
                     data={props.data}
-                    onCancel = {() => setIsPlaylistDeleteModalOpen(false)}
-                    onConfirm = {handleDeleteConfirm}
+                    onCancel={() => setIsPlaylistDeleteModalOpen(false)}
+                    onConfirm={handleDeleteConfirm}
                 />
             )
             }
