@@ -6,6 +6,8 @@ import DigEditModal from "./DigEditModal";
 import PlaylistDeleteModal from "./PlaylistDeleteModal";
 import { Link } from 'react-router-dom';
 
+import { shuffleArray } from "../util";
+
 import Dig from "./Dig";
 
 const Playlist = (props) => {
@@ -60,13 +62,11 @@ const Playlist = (props) => {
     const handlePlayShuffle = () => {
         setIsShuffleEnabled(true);
         setLoopTargetTracks(digs);
-        const randomIndex = Math.floor(Math.random() * digs.length);
-        const newQueuedTracks = [];
-        for (let i = 0; i < digs.length; i++) {
-            if (i != randomIndex) newQueuedTracks.push(digs[i]);
-        }
-        setPlayingTrack(digs[randomIndex]);
-        setQueuedTracks(newQueuedTracks);
+        const copyOfDigs = [...digs];
+        const shuffledDigs = shuffleArray(copyOfDigs);
+        // 新しいオブジェクトを作って渡すことでplayingTrackとshuffledDigs[0]が同じでもplayingTrackトリガーのuseEffectが発火する
+        setPlayingTrack({...shuffledDigs[0]});
+        setQueuedTracks(shuffledDigs.slice(1));
     }
 
     const handleOpenMenu = () => {
