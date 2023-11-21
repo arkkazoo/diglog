@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useEffect, useContext } from 'react';
 import MyContext from '../MyContext';
+import { shuffleArray } from '../util';
 
 const MusicPlayer = () => {
     const [YTPlayer, setYTPlayer] = useState(null);
@@ -87,13 +88,9 @@ const MusicPlayer = () => {
                     setQueuedTracks(loopTargetTracks.slice(1));
                 }
                 else if (isShuffleEnabled) {
-                    const randomIndex = Math.floor(Math.random() * loopTargetTracks.length);
-                    const newQueuedTracks = [];
-                    for (let i = 0; i < loopTargetTracks.length; i++) {
-                        if (i != randomIndex) newQueuedTracks.push(loopTargetTracks[i]);
-                    }
-                    setPlayingTrack(loopTargetTracks[randomIndex]);
-                    setQueuedTracks(newQueuedTracks);
+                    const shuffledTracks = shuffleArray(loopTargetTracks);
+                    setPlayingTrack(shuffledTracks[0]);
+                    setQueuedTracks(shuffledTracks.slice(1));
                 }
             }
         }
