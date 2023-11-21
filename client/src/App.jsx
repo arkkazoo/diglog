@@ -25,6 +25,7 @@ function App() {
 
   const [isLoopEnabled, setIsLoopEnabled] = useState(false);
   const [loopTargetTracks, setLoopTargetTracks] = useState([]);
+  const [isShuffleEnabled, setIsShuffleEnabled] = useState(false);
 
   const [toggleReload, setToggleReload] = useState(false);
   const [playerHasTrack, setPlayerHasTrack] = useState(false);
@@ -38,6 +39,7 @@ function App() {
     queuedTracks, setQueuedTracks,
     isLoopEnabled, setIsLoopEnabled,
     loopTargetTracks, setLoopTargetTracks,
+    isShuffleEnabled, setIsShuffleEnabled,
     playerHasTrack, setPlayerHasTrack,
     toggleReload, setToggleReload,
     // Search.jsxのuseEffectでfetchが多重に発火するのを防ぐために変数を2つ用意している。汚いので改善案募集。

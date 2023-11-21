@@ -29,6 +29,7 @@ const MusicPlayer = () => {
 
     const { isLoopEnabled, setIsLoopEnabled } = useContext(MyContext);
     const { loopTargetTracks, setLoopTargetTracks } = useContext(MyContext);
+    const { isShuffleEnabled, setIsShuffleEnabled } = useContext(MyContext);
 
     // APIのスクリプトを読み込む
     useEffect(() => {
@@ -81,8 +82,19 @@ const MusicPlayer = () => {
                 setQueuedTracks(queuedTracks.slice(1));
             }
             else if (isLoopEnabled && loopTargetTracks.length > 0) {
-                setPlayingTrack(loopTargetTracks[0]);
-                setQueuedTracks(loopTargetTracks.slice(1));
+                if (!isShuffleEnabled) {
+                    setPlayingTrack(loopTargetTracks[0]);
+                    setQueuedTracks(loopTargetTracks.slice(1));
+                }
+                else if (isShuffleEnabled) {
+                    const randomIndex = Math.floor(Math.random() * loopTargetTracks.length);
+                    const newQueuedTracks = [];
+                    for (let i = 0; i < loopTargetTracks.length; i++) {
+                        if (i != randomIndex) newQueuedTracks.push(loopTargetTracks[i]);
+                    }
+                    setPlayingTrack(loopTargetTracks[randomIndex]);
+                    setQueuedTracks(newQueuedTracks);
+                }
             }
         }
     }, [playerHasTrack]
@@ -322,6 +334,9 @@ const MusicPlayer = () => {
         setIsLoopEnabled(!isLoopEnabled);
     }
 
+    const onClickShuffle = () => {
+        setIsShuffleEnabled(!isShuffleEnabled);
+    }
 
     return (
         <div ref={parentRef} className={`fixed bottom-0 w-full transition-transform translate-y-full`}>
@@ -358,6 +373,7 @@ const MusicPlayer = () => {
                                 <button className='pr-3 flex-1' onClick={onClickPauseButton}>II</button>
                                 <button onClick={onClickSkip} className=' flex-1'>▷|</button>
                                 <button onClick={onClickLoop} className={isLoopEnabled ? "flex-1 text-red-600" : "flex-1"}>∞</button>
+                                <button onClick={onClickShuffle} className={isShuffleEnabled ? "flex-1 text-red-600" : "flex-1"}>S</button>
                             </div>
 
                         </div>
